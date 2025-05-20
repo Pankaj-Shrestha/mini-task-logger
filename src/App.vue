@@ -1,47 +1,38 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+  <div class="min-h-screen bg-gray-100 p-6">
+    <div class="max-w-md mx-auto">
+      <h1 class="text-3xl font-bold mb-6 text-center">Mini Task Logger</h1>
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+      <!-- Input component -->
+      <TaskInput @add-task="handleAddTask" />
+
+      <!-- List component -->
+      <TaskList :tasks="tasks" />
     </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
+  </div>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
+<script setup>
+import { ref, onMounted } from 'vue'
+import TaskInput from './components/TaskInput.vue'
+import TaskList from './components/TaskList.vue'
+
+// Import our database functions
+import { addTask, fetchTasks } from './db.js'
+
+// Reactive array of tasks
+const tasks = ref([])
+
+// Load tasks when the app starts
+onMounted(async () => {
+  tasks.value = await fetchTasks()
+})
+
+// Handle new task events
+async function handleAddTask(text) {
+  // 1. Save to IndexedDB
+  await addTask(text)
+  // 2. Re-fetch and update the list
+  tasks.value = await fetchTasks()
 }
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
-</style>
+</script>
