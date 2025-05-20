@@ -1,31 +1,52 @@
 <template>
-  <ul class="space-y-2">
+  <!-- Empty state -->
+  <div v-if="tasks.length === 0" class="text-center py-10 text-gray-500">No tasks logged yet.</div>
+
+  <!-- Otherwise, render with a transition-group for nice entry -->
+  <transition-group name="list" tag="ul" class="space-y-4">
     <li
       v-for="task in tasks"
       :key="task.id"
-      class="flex justify-between items-center p-3 bg-white rounded shadow-sm"
+      class="flex justify-between items-center p-4 bg-white rounded-lg shadow-sm hover:bg-gray-50 transition"
     >
-      <span>{{ task.text }}</span>
-      <small class="text-gray-500">{{ formatDate(task.createdAt) }}</small>
+      <span class="text-lg text-gray-800">{{ task.text }}</span>
+      <small class="text-sm text-gray-500">{{ formatDate(task.createdAt) }}</small>
     </li>
-  </ul>
+  </transition-group>
 </template>
 
 <script setup>
-// Expect a prop "tasks" with an array of task objects
-const props = defineProps({
-  tasks: {
-    type: Array,
-    required: true,
-  },
-})
+const props = defineProps({ tasks: Array })
 
-/**
- * Format a timestamp (ms) into a string.
- * @param {number} ts – timestamp from Date.now()
- * @return {string} – formatted date string
- */
+//Expressive date formatting
 function formatDate(ts) {
-  return new Date(ts).toLocaleString()
+  return new Intl.DateTimeFormat('default', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(new Date(ts))
 }
 </script>
+
+<style scoped>
+/* Animate list items sliding up & fading in */
+.list-enter-active {
+  transition: all 0.3s ease;
+}
+.list-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.list-enter-to {
+  opacity: 1;
+  transform: translateY(0);
+}
+.list-leave-active {
+  transition: opacity 0.2s ease;
+}
+.list-leave-to {
+  opacity: 0;
+}
+</style>
